@@ -65,5 +65,40 @@ function panelView() { return `<main class="panel page"><div class="panel-glow">
 function render() { app.innerHTML = screen === 'calculator' ? calculatorView() : screen === 'key' ? keyView() : panelView(); bindEvents(); }
 function bindEvents() { document.querySelectorAll<HTMLButtonElement>('[data-key]').forEach(button => button.addEventListener('click', () => press(button.dataset.key!))); document.querySelectorAll<HTMLElement>('[data-action]').forEach(el => el.addEventListener('click', () => { const action = el.dataset.action; if (action === 'history') { historyOpen = true; render(); } if (action === 'close-history') { historyOpen = false; render(); } if (action === 'clear-history') { history.length = 0; render(); } if (action === 'calculator') { screen = 'calculator'; historyOpen = false; render(); } if (action === 'launch') { const msg = document.querySelector('#panel-message'); if (!selectedGame) msg!.textContent = 'Escolha Studio ou Mobile antes de abrir.'; else msg!.textContent = `Workspace ${selectedGame} pronto para uso.`; } })); document.querySelectorAll<HTMLButtonElement>('[data-feature]').forEach(el => el.addEventListener('click', () => { const f = el.dataset.feature!; features.has(f) ? features.delete(f) : features.add(f); render(); })); document.querySelectorAll<HTMLButtonElement>('[data-game]').forEach(el => el.addEventListener('click', () => { selectedGame = el.dataset.game!; render(); })); document.querySelector<HTMLFormElement>('#key-form')?.addEventListener('submit', validateKey); }
 async function validateKey(event: SubmitEvent) { event.preventDefault(); if (validating) return; const input = document.querySelector<HTMLInputElement>('#key')!; validating = true; render(); try { const response = await fetch('/api/validate-key', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ key: input.value.trim() }) }); const result = await response.json() as { valid: boolean; message: string }; validating = false; if (!result.valid) { render(); document.querySelector<HTMLParagraphElement>('#key-message')!.textContent = result.message; return; } screen = 'panel'; render(); } catch { validating = false; render(); document.querySelector<HTMLParagraphElement>('#key-message')!.textContent = 'Não foi possível validar agora. Tente novamente.'; } }
-function setupThreeFingerGesture() { let active = new Set<number>(); let openedAt = 0; document.addEventListener('touchstart', event => { for (const touch of Array.from(event.changedTouches)) active.add(touch.identifier); if (active.size >= 3 && screen === 'calculator' && Date.now() - openedAt > 700) { openedAt = Date.now(); event.preventDefault(); screen = 'key'; historyOpen = false; render(); } }, { passive: false }); const release = (event: TouchEvent) => { for (const touch of Array.from(event.changedTouches)) active.delete(touch.identifier); }; document.addEventListener('touchend', release, { passive: true }); document.addEventListener('touchcancel', release, { passive: true }); }
+function setupThreeFingerGesture() {
+  const active = new Set<number>();
+  let tapCount = 0;
+  let lastTap = 0;
+  let resetTimer: number | undefined;
+  let threeFingerStart = 0;
+  document.addEventListener('touchstart', event => {
+    for (const touch of Array.from(event.changedTouches)) active.add(touch.identifier);
+    if (active.size === 3) {
+      threeFingerStart = Date.now();
+      event.preventDefault();
+    }
+  }, { passive: false });
+  const release = (event: TouchEvent) => {
+    for (const touch of Array.from(event.changedTouches)) active.delete(touch.identifier);
+    if (active.size === 0 && threeFingerStart) {
+      const duration = Date.now() - threeFingerStart;
+      threeFingerStart = 0;
+      if (duration < 650 && screen === 'calculator') {
+        const now = Date.now();
+        tapCount = now - lastTap < 1300 ? tapCount + 1 : 1;
+        lastTap = now;
+        window.clearTimeout(resetTimer);
+        resetTimer = window.setTimeout(() => { tapCount = 0; }, 1400);
+        if (tapCount === 4) {
+          tapCount = 0;
+          screen = 'key';
+          historyOpen = false;
+          render();
+        }
+      }
+    }
+  };
+  document.addEventListener('touchend', release, { passive: false });
+  document.addEventListener('touchcancel', release, { passive: false });
+}
 setupThreeFingerGesture(); render();
