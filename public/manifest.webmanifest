@@ -1,1 +1,1 @@
-{"name":"Calculadora","short_name":"Calculadora","start_url":"/","display":"standalone","background_color":"#000000","theme_color":"#000000","lang":"pt-BR","icons":[{"src":"/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}
+{"name":"Calculadora","short_name":"Calculadora","start_url":"/","display":"standalone","background_color":"#000000","theme_color":"#000000","lang":"pt-BR","icons":[{"src":"/icon-180.png?v=2","sizes":"180x180","type":"image/png","purpose":"any maskable"}]}

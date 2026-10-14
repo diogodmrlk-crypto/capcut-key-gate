@@ -6,3 +6,6 @@
 
 /* Ajuste tipográfico: números centralizados como na Calculadora nativa */
 .calculator,.calculator button{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Arial,sans-serif}.calculator .key{align-items:center;justify-items:center;line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums;padding:0;text-align:center}.calculator .key.function{font-weight:400;line-height:1}.calculator .key.operator{font-weight:400;line-height:1}.calculator .key.zero{justify-items:start;text-align:left;line-height:1}.display strong{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;font-weight:300;letter-spacing:-3px}.calc-title{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",Arial,sans-serif;font-weight:600}
+
+/* Centralização rígida das teclas: evita deslocamento de números e operadores */
+.calculator .key{display:flex;align-items:center;justify-content:center;line-height:1;height:auto;min-height:0;vertical-align:middle}.calculator .key.zero{justify-content:flex-start;align-items:center}.calculator .key.function,.calculator .key.operator{line-height:1;padding-top:0;padding-bottom:0}.calculator .key::first-letter{line-height:1}
